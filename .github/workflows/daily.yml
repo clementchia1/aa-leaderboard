@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - "fetch_leaderboard.py"
+      - "aes_gcm.py"
       - "pick_free_models.py"
       - "to_csv.py"
       - ".github/workflows/daily.yml"
@@ -30,13 +31,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      # fetch_leaderboard.py exits 2 and writes nothing when the dataset is
+      # incomplete (<700 models, <30 benchmarks, or missing omniscience /
+      # automationbench rows), so a broken scrape never reaches a commit.
       - name: Fetch leaderboard
         run: |
           python3 fetch_leaderboard.py
           python3 -c "
-          import json, sys
+          import json
           d = json.load(open('data/leaderboard.json'))
-          assert d['modelCount'] > 100, 'suspiciously few models — payload shape changed?'
+          assert d['modelCount'] >= 700, f\"only {d['modelCount']} models\"
+          assert d['benchmarkCount'] >= 30, f\"only {d['benchmarkCount']} benchmarks\"
+          print(f\"ok: {d['modelCount']} models, {d['benchmarkCount']} benchmarks\")
           "
 
       - name: Pick free models + CSV

@@ -1,153 +1,164 @@
 #!/usr/bin/env python3
-"""Fetch the Artificial Analysis LLM leaderboard as structured JSON — no browser needed.
+"""Fetch the COMPLETE Artificial Analysis model dataset — no browser needed.
 
-The leaderboard page is a Next.js App Router page. Requesting it with the
-`RSC: 1` header returns the React Server Component flight payload, which
-contains the full model table data as plain JSON arrays (metrics object per
-model + metadata object per model). This script extracts and merges them.
+How the site actually delivers data
+-----------------------------------
+The leaderboard page is Next.js App Router. The `RSC: 1` flight payload only
+carries `initialModels` (~278 models, partial metrics): that is why the old
+fetcher produced an incomplete table.
+
+The full table (722 models x 35 benchmark scores) ships as one blob:
+
+    /data/<hash>.txt      AES-256-GCM ciphertext, 16-byte tag appended
+    manifest.key          hex AES key, embedded in the page payload
+    plaintext             gzip(JSON array of model objects)
+
+IV = sha256(aes_key)[:12]. The page decrypts this client-side with
+crypto.subtle + DecompressionStream("gzip"). We do the same in pure Python
+(see aes_gcm.py), so the pipeline stays stdlib-only.
 
 Usage:
-    python3 fetch_leaderboard.py                    # writes data/leaderboard.json
-    python3 fetch_leaderboard.py -o out.json        # custom output path
+    python3 fetch_leaderboard.py                 # writes data/leaderboard.json
+    python3 fetch_leaderboard.py -o out.json     # custom output path
 """
 
 import argparse
+import gzip
+import hashlib
 import json
 import re
 import sys
+import time
 import urllib.request
+from datetime import datetime, timezone
+
+import aes_gcm
 
 URL = "https://artificialanalysis.ai/leaderboards/models?status=all"
-HEADERS = {
-    "RSC": "1",
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-    "Accept": "text/x-component",
-    "Accept-Language": "en-US,en;q=0.9",
-}
+BASE = "https://artificialanalysis.ai"
+UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
+)
+
+# Gate: refuse to publish a partial dataset. Observed 2026-11-03: 722 models,
+# 35 benchmark slugs, 110 omniscience rows, 242 automationbench rows.
+MIN_MODELS = 700
+MIN_BENCHMARKS = 30
+MIN_ROWS = {"omniscience-non-hallucination": 95, "automationbench-aa": 230}
+
+MANIFEST_RE = re.compile(
+    r'\\?"path\\?":\\?"(/data/[A-Za-z0-9_.-]+\.txt)\\?",\s*'
+    r'\\?"key\\?":\\?"([0-9a-fA-F]{64})\\?"'
+)
 
 
-def fetch_rsc(url: str) -> str:
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return r.read().decode("utf-8", errors="replace")
+def get(url: str, headers: dict | None = None, tries: int = 3) -> bytes:
+    last = None
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA, **(headers or {})})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return r.read()
+        except Exception as exc:  # noqa: BLE001 - retry any transport error
+            last = exc
+            if attempt + 1 < tries:
+                time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"GET {url} failed: {last}")
 
 
-def extract_array(text: str, anchor: str) -> list:
-    """Bracket-match the JSON array that starts at the `[` following `anchor`."""
-    i = text.find(anchor)
-    if i < 0:
-        raise ValueError(f"anchor {anchor!r} not found")
-    start = text.find("[", i)
-    depth = 0
-    for j in range(start, len(text)):
-        c = text[j]
-        if c == "[":
-            depth += 1
-        elif c == "]":
-            depth -= 1
-            if depth == 0:
-                return json.loads(text[start : j + 1])
-    raise ValueError("unbalanced array")
+def find_manifest() -> tuple[str, str]:
+    """Locate the encrypted dataset URL + AES key in the page or RSC payload."""
+    page = get(URL).decode("utf-8", errors="replace")
+    m = MANIFEST_RE.search(page)
+    if m:
+        return m.group(1), m.group(2)
+
+    # Fallback: the RSC flight payload carries the same manifest.
+    rsc = get(URL, {"RSC": "1", "Accept": "text/x-component"}).decode("utf-8", errors="replace")
+    m = MANIFEST_RE.search(rsc)
+    if m:
+        return m.group(1), m.group(2)
+    raise RuntimeError("manifest {path,key} not found in page or RSC payload")
 
 
-def extract_objects_with_field(text: str, field: str) -> list:
-    """Extract every top-level {...} object containing `field` from flight data.
-
-    Flight payload is a stream of lines like `c:[...]`. Model metric objects
-    appear inline; we bracket-match each object whose body contains the field.
-    """
-    objs = []
-    i = 0
-    n = len(text)
-    while True:
-        i = text.find('{"slug"', i)
-        if i < 0:
-            break
-        # bracket-match forward from '{'
-        depth = 0
-        in_str = False
-        esc = False
-        end = -1
-        for j in range(i, n):
-            c = text[j]
-            if in_str:
-                if esc:
-                    esc = False
-                elif c == "\\":
-                    esc = True
-                elif c == '"':
-                    in_str = False
-                continue
-            if c == '"':
-                in_str = True
-            elif c == "{":
-                depth += 1
-            elif c == "}":
-                depth -= 1
-                if depth == 0:
-                    end = j
-                    break
-        if end < 0:
-            break
-        chunk = text[i : end + 1]
-        if f'"{field}"' in chunk:
-            try:
-                obj = json.loads(chunk)
-            except json.JSONDecodeError:
-                obj = None
-            if obj is not None:
-                # strip RSC "$undefined" markers → None
-                def clean(o):
-                    if isinstance(o, dict):
-                        return {k: clean(v) for k, v in o.items()}
-                    if isinstance(o, list):
-                        return [clean(v) for v in o]
-                    return None if o == "$undefined" else o
-                objs.append(clean(obj))
-        i = end + 1
-    return objs
+def fetch_models() -> list[dict]:
+    path, key_hex = find_manifest()
+    blob = get(BASE + path, {"Referer": URL})
+    key = bytes.fromhex(key_hex)
+    iv = hashlib.sha256(key).digest()[:12]
+    plain = aes_gcm.decrypt(key, iv, blob)
+    try:
+        models = json.loads(gzip.decompress(plain))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"decrypted payload is not gzip JSON: {exc}") from exc
+    if not isinstance(models, list):
+        raise RuntimeError("decrypted payload is not a JSON array")
+    return models
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__)
+def normalize(models: list[dict]) -> list[dict]:
+    """Add the legacy flat aliases downstream scripts rely on; keep everything."""
+    for m in models:
+        scores = m.get("scores") or {}
+        m["displayName"] = m.get("name") or m.get("shortName") or m.get("slug")
+        m["creator"] = m.get("modelCreatorName")
+        m["benchmarkCount"] = len(scores)
+    return models
+
+
+def validate(models: list[dict]) -> dict:
+    bench: dict[str, int] = {}
+    for m in models:
+        for slug, val in (m.get("scores") or {}).items():
+            if val is not None:
+                bench[slug] = bench.get(slug, 0) + 1
+    problems = []
+    if len(models) < MIN_MODELS:
+        problems.append(f"models={len(models)} < {MIN_MODELS}")
+    if len(bench) < MIN_BENCHMARKS:
+        problems.append(f"benchmarks={len(bench)} < {MIN_BENCHMARKS}")
+    for slug, need in MIN_ROWS.items():
+        got = bench.get(slug, 0)
+        if got < need:
+            problems.append(f"{slug}={got} < {need}")
+    if problems:
+        raise RuntimeError("incomplete dataset: " + "; ".join(problems))
+    return bench
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
     ap.add_argument("-o", "--output", default="data/leaderboard.json")
     args = ap.parse_args()
 
-    text = fetch_rsc(URL)
-
-    # metadata array: slug/name/creator/release info
-    models_meta = extract_array(text, '"models":[')
-    # metrics objects: contain intelligenceIndex
-    metrics = extract_objects_with_field(text, "intelligenceIndex")
-
-    meta_by_slug = {m["slug"]: m for m in models_meta}
-    rows = []
-    for m in metrics:
-        slug = m.get("slug")
-        meta = meta_by_slug.get(slug, {})
-        row = dict(m)
-        row["creator"] = (meta.get("creator") or {}).get("name") if isinstance(meta.get("creator"), dict) else meta.get("creator")
-        row["displayName"] = meta.get("name")
-        effort = meta.get("effort")
-        row["effort"] = effort.get("label") if isinstance(effort, dict) else effort
-        release = meta.get("release")
-        row["release"] = release.get("name") if isinstance(release, dict) else release
-        row["releaseDate"] = meta.get("releaseDate") or m.get("releaseDate")
-        row["deprecated"] = meta.get("deprecated", m.get("deprecated"))
-        rows.append(row)
+    try:
+        models = normalize(fetch_models())
+        bench = validate(models)
+    except Exception as exc:  # noqa: BLE001 - fail loudly, write nothing
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     out = {
         "source": URL,
-        "fetchedAt": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
-        "modelCount": len(rows),
-        "models": rows,
+        "dataSource": "encrypted dataset /data/<hash>.txt (AES-256-GCM + gzip)",
+        "fetchedAt": datetime.now(timezone.utc).isoformat(),
+        "modelCount": len(models),
+        "benchmarkCount": len(bench),
+        "benchmarks": dict(sorted(bench.items(), key=lambda kv: -kv[1])),
+        "models": models,
     }
     import os
+
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     with open(args.output, "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
-    print(f"wrote {args.output}: {len(rows)} models", file=sys.stderr)
+    print(
+        f"wrote {args.output}: {len(models)} models, {len(bench)} benchmarks",
+        file=sys.stderr,
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
