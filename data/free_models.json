@@ -1,9 +1,11 @@
 {
- "generatedAt": "2026-11-13T10:41:47.971351+00:00",
+ "generatedAt": "2026-11-14T09:55:23.748214+00:00",
  "count": 4,
  "models": [
   {
-   "slug": "k2-horizon-375b-a23b",
+   "release": {
+    "slug": "k2-horizon-375b-a23b"
+   },
    "name": "K2 Horizon 375B A23B",
    "shortName": "K2 Horizon 375B A23B",
    "deprecated": false,
@@ -18,7 +20,7 @@
    "intelligenceIndex": 17.8202731734027,
    "omniscience": -5,
    "scores": {
-    "aa-briefcase": 1292.48,
+    "aa-briefcase": 1292.59,
     "omniscience-accuracy": 0.18633333333333332,
     "omniscience-non-hallucination": 0.7095452683326506,
     "automationbench-aa": 0.3720802754388014,
@@ -28,7 +30,7 @@
     "gdp-pdf": 0.074,
     "terminalbench-4-0": 0.0151515151515152,
     "critpt-v2-hard": 0.12,
-    "gdpval-aa-normalized": 1365.05,
+    "gdpval-aa-normalized": 1363.18,
     "mlcr-aa": 0.122222222222222,
     "frontiercode": 0.320955,
     "humanitys-last-exam": 0.319740500463392,
@@ -40,21 +42,23 @@
     "tau3-banking": 0.342268041237113
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 286.16070780427265,
+   "intelligenceIndexTimePerTask": 259.57750317593764,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 222.48126824003717,
-   "timeToFirstToken": 6.608559321629166,
-   "timeToFirstAnswerToken": 15.961939675885185,
+   "outputSpeed": 245.26546566560444,
+   "timeToFirstToken": 4.565303502943753,
+   "timeToFirstAnswerToken": 14.12535294477293,
    "displayName": "K2 Horizon 375B A23B",
    "creator": "Institute of Foundation Models",
    "benchmarkCount": 20,
    "price1mBlended0To3To1": 0.0
   },
   {
-   "slug": "command-a-plus",
+   "release": {
+    "slug": "command-a-plus"
+   },
    "name": "Command A+",
    "shortName": "Command A+",
    "deprecated": false,
@@ -69,7 +73,7 @@
    "intelligenceIndex": 6.24120025576958,
    "omniscience": -2.6666666666666665,
    "scores": {
-    "aa-briefcase": 356.2,
+    "aa-briefcase": 356.32,
     "omniscience-accuracy": 0.09833333333333333,
     "omniscience-non-hallucination": 0.8613678373382625,
     "automationbench-aa": 0.018104537047977383,
@@ -79,7 +83,7 @@
     "gdp-pdf": 0.01,
     "terminalbench-4-0": 0.00505050505050505,
     "critpt-v2-hard": 0.025,
-    "gdpval-aa-normalized": 521.85,
+    "gdpval-aa-normalized": 521.53,
     "mlcr-aa": 0.0166666666666667,
     "mmmu-pro": 0.632369942196532,
     "frontiercode": 0.0121166666666667,
@@ -95,21 +99,23 @@
     "tau3-banking": 0.0597938144329897
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 180.9484289355282,
+   "intelligenceIndexTimePerTask": 185.575543303604,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 196.90867958325373,
-   "timeToFirstToken": 0.9196786332003876,
-   "timeToFirstAnswerToken": 12.542765097988749,
+   "outputSpeed": 191.9989863969705,
+   "timeToFirstToken": 0.9383643051111584,
+   "timeToFirstAnswerToken": 17.498351876398296,
    "displayName": "Command A+",
    "creator": "Cohere",
    "benchmarkCount": 24,
    "price1mBlended0To3To1": 0.0
   },
   {
-   "slug": "gemma-4-31b",
+   "release": {
+    "slug": "gemma-4-31b"
+   },
    "name": "Gemma 4 31B (Reasoning)",
    "shortName": "Gemma 4 31B",
    "deprecated": false,
@@ -124,7 +130,7 @@
    "intelligenceIndex": 4.38438284215374,
    "omniscience": -48.53333333333333,
    "scores": {
-    "aa-briefcase": 368.55,
+    "aa-briefcase": 369.09,
     "omniscience-accuracy": 0.19933333333333333,
     "omniscience-non-hallucination": 0.14487926727726896,
     "automationbench-aa": 0.049330634486812325,
@@ -135,7 +141,7 @@
     "terminalbench-4-0": 0,
     "critpt-v2-hard": 0.04,
     "enterprise-ops-gym-aa": 0.28349746344374815,
-    "gdpval-aa-normalized": 626.77,
+    "gdpval-aa-normalized": 626.6,
     "itbench-aa": 0.372881355932203,
     "mmmu-pro": 0.734104046242775,
     "humanitys-last-exam": 0.236329935125116,
@@ -153,16 +159,18 @@
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 29.512354295543023,
-   "timeToFirstToken": 0.9502427742778187,
-   "timeToFirstAnswerToken": 26.016570700622214,
+   "outputSpeed": 29.5449290982767,
+   "timeToFirstToken": 0.9603258856334081,
+   "timeToFirstAnswerToken": 26.54827534076668,
    "displayName": "Gemma 4 31B (Reasoning)",
    "creator": "Google",
    "benchmarkCount": 24,
    "price1mBlended0To3To1": 0.0
   },
   {
-   "slug": "north-mini-code",
+   "release": {
+    "slug": "north-mini-code"
+   },
    "name": "North Mini Code",
    "shortName": "North Mini Code",
    "deprecated": false,
@@ -177,7 +185,7 @@
    "intelligenceIndex": 3.42470262148493,
    "omniscience": -49.8,
    "scores": {
-    "aa-briefcase": 212.45,
+    "aa-briefcase": 212.52,
     "omniscience-accuracy": 0.18366666666666667,
     "omniscience-non-hallucination": 0.16496529195590037,
     "automationbench-aa": 0.014912858603711226,
@@ -187,7 +195,7 @@
     "gdp-pdf": 0.018,
     "terminalbench-4-0": 0.00505050505050505,
     "critpt-v2-hard": 0.01,
-    "gdpval-aa-normalized": 318.62,
+    "gdpval-aa-normalized": 318.29,
     "mlcr-aa": 0.0444444444444444,
     "humanitys-last-exam": 0.110750695088044,
     "artificial-analysis-long-context-reasoning": 0.373333333333333,
@@ -201,14 +209,14 @@
     "tau3-banking": 0.0639175257731959
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 168.39321535966596,
+   "intelligenceIndexTimePerTask": 171.96030756948102,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 178.57330156242156,
-   "timeToFirstToken": 0.6744330613045957,
-   "timeToFirstAnswerToken": 3.930553265872639,
+   "outputSpeed": 174.86903142073848,
+   "timeToFirstToken": 0.6616021344797607,
+   "timeToFirstAnswerToken": 4.431684123557051,
    "displayName": "North Mini Code",
    "creator": "Cohere",
    "benchmarkCount": 22,
