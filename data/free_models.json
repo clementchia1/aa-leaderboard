@@ -1,13 +1,16 @@
 {
- "generatedAt": "2026-11-14T09:55:23.748214+00:00",
+ "generatedAt": "2026-11-15T10:31:42.562567+00:00",
  "count": 4,
  "models": [
   {
+   "id": "bb3d7e75-8e22-4082-b9d6-1db0803e042f",
    "release": {
-    "slug": "k2-horizon-375b-a23b"
+    "slug": "k2-horizon-375b-a23b",
+    "name": "K2 Horizon 375B A23B"
    },
    "name": "K2 Horizon 375B A23B",
    "shortName": "K2 Horizon 375B A23B",
+   "suffix": null,
    "deprecated": false,
    "isReasoning": true,
    "isOpenWeights": true,
@@ -42,25 +45,28 @@
     "tau3-banking": 0.342268041237113
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 259.57750317593764,
+   "intelligenceIndexTimePerTask": 260.56649867696535,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 245.26546566560444,
-   "timeToFirstToken": 4.565303502943753,
-   "timeToFirstAnswerToken": 14.12535294477293,
+   "outputSpeed": 244.3345461370681,
+   "timeToFirstToken": 4.801755653490051,
+   "timeToFirstAnswerToken": 17.70760634102525,
    "displayName": "K2 Horizon 375B A23B",
    "creator": "Institute of Foundation Models",
    "benchmarkCount": 20,
    "price1mBlended0To3To1": 0.0
   },
   {
+   "id": "2e9ff877-fd2c-4ce7-b631-7ca1bdb6d13e",
    "release": {
-    "slug": "command-a-plus"
+    "slug": "command-a-plus",
+    "name": "Command A+"
    },
    "name": "Command A+",
    "shortName": "Command A+",
+   "suffix": null,
    "deprecated": false,
    "isReasoning": true,
    "isOpenWeights": true,
@@ -99,25 +105,28 @@
     "tau3-banking": 0.0597938144329897
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 185.575543303604,
+   "intelligenceIndexTimePerTask": 194.77105404690775,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 191.9989863969705,
-   "timeToFirstToken": 0.9383643051111584,
-   "timeToFirstAnswerToken": 17.498351876398296,
+   "outputSpeed": 182.93435022320125,
+   "timeToFirstToken": 1.0038215676006061,
+   "timeToFirstAnswerToken": 18.304363307351352,
    "displayName": "Command A+",
    "creator": "Cohere",
    "benchmarkCount": 24,
    "price1mBlended0To3To1": 0.0
   },
   {
+   "id": "cd26a386-4873-46ff-b853-d239050025a2",
    "release": {
-    "slug": "gemma-4-31b"
+    "slug": "gemma-4-31b",
+    "name": "Gemma 4 31B"
    },
    "name": "Gemma 4 31B (Reasoning)",
    "shortName": "Gemma 4 31B",
+   "suffix": "Reasoning",
    "deprecated": false,
    "isReasoning": true,
    "isOpenWeights": true,
@@ -159,20 +168,23 @@
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 29.5449290982767,
-   "timeToFirstToken": 0.9603258856334081,
-   "timeToFirstAnswerToken": 26.54827534076668,
+   "outputSpeed": 31.635090182200397,
+   "timeToFirstToken": 0.9588057880500788,
+   "timeToFirstAnswerToken": 52.46146870228127,
    "displayName": "Gemma 4 31B (Reasoning)",
    "creator": "Google",
    "benchmarkCount": 24,
    "price1mBlended0To3To1": 0.0
   },
   {
+   "id": "1e9907e0-ffac-4595-b006-962e4f1da7cf",
    "release": {
-    "slug": "north-mini-code"
+    "slug": "north-mini-code",
+    "name": "North Mini Code"
    },
    "name": "North Mini Code",
    "shortName": "North Mini Code",
+   "suffix": null,
    "deprecated": false,
    "isReasoning": true,
    "isOpenWeights": true,
@@ -209,14 +221,14 @@
     "tau3-banking": 0.0639175257731959
    },
    "intelligenceIndexCostPerTask": 0,
-   "intelligenceIndexTimePerTask": 171.96030756948102,
+   "intelligenceIndexTimePerTask": 175.67253691748655,
    "price1mInputTokens": 0,
    "price1mOutputTokens": 0,
    "cacheHitPrice": null,
    "cacheWritePrice": null,
-   "outputSpeed": 174.86903142073848,
-   "timeToFirstToken": 0.6616021344797607,
-   "timeToFirstAnswerToken": 4.431684123557051,
+   "outputSpeed": 171.1737813726204,
+   "timeToFirstToken": 0.6483157483624357,
+   "timeToFirstAnswerToken": 5.463028420683538,
    "displayName": "North Mini Code",
    "creator": "Cohere",
    "benchmarkCount": 22,
